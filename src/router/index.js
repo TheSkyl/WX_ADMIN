@@ -89,7 +89,54 @@ export const constantRoutes = [
       }
     ]
   },
-
+  {
+    path: '/banner',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '轮播图管理',
+        component: () => import('@/views/banner/list'),
+        meta: { title: '轮播图管理', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/famousWorks',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '名著',
+        component: () => import('@/views/famousWorks/list'),
+        meta: { title: '名著', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/poetry',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '诗词',
+        component: () => import('@/views/poetry/list'),
+        meta: { title: '诗词', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/novel',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '小说管理',
+        component: () => import('@/views/novel/list'),
+        meta: { title: '小说管理', icon: 'example' }
+      }
+    ]
+  },
   {
     path: '/nested',
     component: Layout,
