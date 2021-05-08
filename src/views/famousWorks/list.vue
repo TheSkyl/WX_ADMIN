@@ -17,7 +17,7 @@
           <el-tag
             size="mini"
             v-if="scope.row.children || scope.row.children === null"
-            >一级故障</el-tag
+            ></el-tag
           >
           <el-tag size="mini" type="warning" prop="chapter" v-else
             >{{ scope.row.chapter }}</el-tag
@@ -139,7 +139,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="articleDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="articleSave">确 定</el-button>
       </span>
     </el-dialog>
@@ -155,10 +155,6 @@ export default {
     return {
       novelList: [],
       articleForm: {
-        novelId:"",
-        title:"",
-        article:"",
-        chapter:"",
         type:1
       },
       content: "welcome to tinymce!",
@@ -210,6 +206,7 @@ export default {
       this.clearData();
     },
     clearData() {
+      this.articleDialogVisible = false
       this.dialogVisible = false;
       this.form = "";
       this.dialogImageUrl = "";

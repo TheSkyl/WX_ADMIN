@@ -18,7 +18,7 @@
           <el-tag
             size="mini"
             v-if="scope.row.children || scope.row.children === null"
-            >一级故障</el-tag
+            ></el-tag
           >
           <el-tag size="mini" type="warning" prop="chapter" v-else>{{
             scope.row.chapter
