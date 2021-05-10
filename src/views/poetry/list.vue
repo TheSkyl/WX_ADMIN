@@ -1,19 +1,13 @@
 <template>
   <dir id="app">
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
-    <el-table
-      :data="novelList"
-      border
-      style="width: 100%"
-      default-expand-all
-      row-key="id"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    >
-      <el-table-column prop="title" label="诗名" width="120" />
+    <el-table :data="novelList" border style="width: 100%">
+      ///** */:tree-props="{ children: 'children', hasChildren: 'hasChildren'*/
+      <!-- <el-table-column prop="title" label="诗名" width="120" /> -->
 
-      <el-table-column prop="author" label="诗人" width="120" />
-      <el-table-column prop="briefIntroduction" label="简介" width="300" />
-      <el-table-column label="章节">
+      <el-table-column prop="name" label="诗人" width="120" />
+      <el-table-column prop="intro" label="简介" width="300" />
+      <!-- <el-table-column label="章节">
         <template slot-scope="scope">
           <el-tag
             size="mini"
@@ -24,12 +18,12 @@
             scope.row.chapter
           }}</el-tag>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
             :preview-src-list="[scope.row]"
-            style="height: 50px"
+            style="height: 90px;width:60px"
             fit="fill"
             v-if="scope.row.children || scope.row.children === null"
             :src="'http://localhost:53021/web' + scope.row.imgLink"
@@ -38,32 +32,11 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button
-            type="text"
-            size="small"
-            @click="
-              scope.row.children || scope.row.children === null
-                ? deleteNovel(scope.row.id)
-                : deleteAritcle(scope.row.id)
-            "
+          <el-button type="text" size="small" @click="deleteNovel(scope.row.id)"
             >删除</el-button
           >
-          <el-button
-            type="text"
-            size="small"
-            @click="
-              scope.row.children || scope.row.children === null
-                ? getEditInfo(scope.row.id)
-                : getArticlInfo(scope.row.id)
-            "
+          <el-button type="text" size="small" @click="getEditInfo(scope.row.id)"
             >编辑</el-button
-          >
-          <el-button
-            type="text"
-            size="small"
-            @click="addArticle(scope.row.id)"
-            v-if="scope.row.children || scope.row.children === null"
-            >添加章节</el-button
           >
         </template>
       </el-table-column>
@@ -78,12 +51,12 @@
     >
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="作者">
-          <el-input v-model="form.author"></el-input>
+          <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="简介">
-          <el-input v-model="form.briefIntroduction"></el-input>
+          <el-input v-model="form.intro"></el-input>
         </el-form-item>
-        <el-form-item label="封面" prop="link">
+        <el-form-item label="封面" prop="imgLink">
           <el-upload
             action="http://localhost:53021/web/banner/upload"
             list-type="picture-card"
@@ -98,45 +71,13 @@
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="upDialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="" />
+            <img width="50px" :src="dialogImageUrl" alt="" />
           </el-dialog>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="save">确 定</el-button>
-      </span>
-    </el-dialog>
-
-    <el-dialog
-      id="test"
-      title="诗词添加"
-      :visible.sync="articleDialogVisible"
-      width="70%"
-      @close="articleAddDialogClosed"
-    >
-      <el-form ref="form" :model="articleForm" label-width="80px">
-        <el-form-item label="诗名">
-          <el-input v-model="articleForm.title"></el-input>
-        </el-form-item>
-        <el-form-item label="主体">
-          <quill-editor
-            v-model="articleForm.article"
-            ref="myQuillEditor"
-            :options="editorOption"
-            @blur="onEditorBlur($event)"
-            @focus="onEditorFocus($event)"
-            @change="onEditorChange($event)"
-          >
-          </quill-editor>
-        </el-form-item>
-        <el-form-item label="章节">
-          <el-input v-model="articleForm.chapter"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="articleSave">确 定</el-button>
       </span>
     </el-dialog>
   </dir>
@@ -155,7 +96,7 @@ export default {
         title: "",
         article: "",
         chapter: "",
-        type:2
+        type: 2,
       },
       content: "welcome to tinymce!",
       editorOption: {},
@@ -164,7 +105,10 @@ export default {
       dialogImageUrl: "",
       upDialogVisible: false,
       novelDefaultFile: [],
-      form: {},
+      form: {
+        name:'',
+        intro:''
+      },
     };
   },
   created() {
@@ -207,7 +151,8 @@ export default {
     },
     clearData() {
       this.dialogVisible = false;
-      this.form = "";
+      this.form.name='';
+      this.form.intro='';
       this.dialogImageUrl = "";
       this.novelDefaultFile = [];
     },
@@ -264,7 +209,7 @@ export default {
     },
 
     async articleSave() {
-      if (this.form.id) {
+      if (this.articleForm.id) {
         await poetryApi.updateArticle(this.articleForm);
         this.$message.success("編輯成功");
       } else {

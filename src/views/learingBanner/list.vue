@@ -2,22 +2,19 @@
   <dir id="app">
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
     <el-table :data="bannerList" border style="width: 100%">
-      <el-table-column fixed prop="createTime" label="日期" width="150" />
       <el-table-column prop="name" label="名字" width="120" />
-      <el-table-column prop="status" label="状态" width="120" />
-      <el-table-column prop="link" label="图片地址" width="120" />
-      <el-table-column prop="sequence" label="顺序" width="300" />
+      <el-table-column prop="type" label="类型" width="120" />
       <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
             :preview-src-list="[scope.row]"
             style="height: 100px"
             fit="fill"
-            :src="'http://localhost:53021/web' + scope.row.link"
+            :src="'http://localhost:53021/web' + scope.row.imgLink"
           ></el-image>
         </template>
       </el-table-column>
-      <el-table-column label="操作" >
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             type="text"
@@ -53,10 +50,10 @@
         <el-form-item label="名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="顺序">
-          <el-input v-model="form.sequence"></el-input>
+        <el-form-item label="类型">
+          <el-input v-model="form.type"></el-input>
         </el-form-item>
-        <el-form-item label="图片" prop="link">
+        <el-form-item label="图片" prop="imgLink">
           <el-upload
             action="http://localhost:53021/web/banner/upload"
             list-type="picture-card"
@@ -84,7 +81,7 @@
 </template>
 
 <script>
-import banner from "@/api/banner";
+import banner from "@/api/learingBanner";
 
 export default {
   data() {
@@ -138,7 +135,7 @@ export default {
     //上传图片成功回调函数
     handleUploadSuccess(response, file, fileList) {
       console.log(response);
-      this.form.link = response;
+      this.form.imgLink = response;
       this.$message.success("上传成功");
     },
     beforeRemove(file, fileList) {
@@ -204,7 +201,7 @@ export default {
       const { data: res } = await banner.getById(id);
       console.log(res);
       this.bannerDefaultFile.push({
-        url: "http://localhost:53021/web" + res.banner.link,
+        url: "http://localhost:53021/web" + res.banner.imgLink,
       });
       this.form = res.banner;
       this.dialogImageUrl = res.banner.link;

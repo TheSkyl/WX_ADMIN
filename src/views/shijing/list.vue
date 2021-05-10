@@ -2,12 +2,12 @@
   <dir id="app">
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
     <el-table :data="bannerList" border style="width: 100%">
-      <el-table-column fixed prop="createTime" label="日期" width="150" />
-      <el-table-column prop="name" label="名字" width="120" />
-      <el-table-column prop="status" label="状态" width="120" />
-      <el-table-column prop="link" label="图片地址" width="120" />
-      <el-table-column prop="sequence" label="顺序" width="300" />
-      <el-table-column label="图片" width="200px">
+      <el-table-column prop="title" label="名字" width="100%" />
+      <el-table-column prop="chapter" label="章节" width="100%" />
+      <el-table-column prop="section" label="节" width="100%" />
+      
+      <!-- <el-table-column prop="sequence" label="顺序" width="300" /> -->
+      <!-- <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
             :preview-src-list="[scope.row]"
@@ -16,8 +16,8 @@
             :src="'http://localhost:53021/web' + scope.row.link"
           ></el-image>
         </template>
-      </el-table-column>
-      <el-table-column label="操作" >
+      </el-table-column> -->
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             type="text"
@@ -51,12 +51,21 @@
     >
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="名称">
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="form.title"></el-input>
         </el-form-item>
-        <el-form-item label="顺序">
+        <el-form-item label="章节">
+          <el-input v-model="form.chapter"></el-input>
+        </el-form-item>
+        <el-form-item label="章节">
+          <el-input v-model="form.section"></el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input v-model="form.content"></el-input>
+        </el-form-item>
+        <!-- <el-form-item label="顺序">
           <el-input v-model="form.sequence"></el-input>
-        </el-form-item>
-        <el-form-item label="图片" prop="link">
+        </el-form-item> -->
+        <!-- <el-form-item label="图片" prop="link">
           <el-upload
             action="http://localhost:53021/web/banner/upload"
             list-type="picture-card"
@@ -73,7 +82,7 @@
           <el-dialog :visible.sync="upDialogVisible">
             <img width="100%" :src="dialogImageUrl" alt="" />
           </el-dialog>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false" >取 消</el-button>
@@ -84,7 +93,7 @@
 </template>
 
 <script>
-import banner from "@/api/banner";
+import banner from "@/api/shijing";
 
 export default {
   data() {
@@ -100,7 +109,12 @@ export default {
       queryInfo: {
         keyword: "",
       },
-      form: {},
+      form: {
+        title:'',
+        chapter:'',
+        content:'',
+        section:''
+      },
     };
   },
   created() {
@@ -131,7 +145,10 @@ export default {
     },
     clearData() {
       this.dialogVisible = false;
-      this.form = "";
+      this.form.title='';
+      this.form.chapter='';
+      this.form.content='';
+      this.form.section='';
       this.dialogImageUrl = "";
       this.bannerDefaultFile = [];
     },
@@ -178,10 +195,10 @@ export default {
         this.queryInfo.keyword
       );
       console.log(this.pageNum);
-      this.bannerList = res.page.records;
-      this.total = res.page.total;
-      this.pageNum = res.page.current;
-      this.pageSize = res.page.size;
+      this.bannerList = res.poetry.records;
+      this.total = res.poetry.total;
+      this.pageNum = res.poetry.current;
+      this.pageSize = res.poetry.size;
       console.log(this.bannerList);
       // this.
     },
@@ -192,10 +209,11 @@ export default {
         this.$message.success("編輯成功");
         this.dialogVisible = false;
         this.clearData()
-        this.getList();
+        this.getAll();
       } else {
         const res = await banner.add(this.form);
         this.$message.success("添加成功");
+        this.getAll();
         this.clearData()
       }
     },
@@ -203,12 +221,9 @@ export default {
       this.dialogVisible = true;
       const { data: res } = await banner.getById(id);
       console.log(res);
-      this.bannerDefaultFile.push({
-        url: "http://localhost:53021/web" + res.banner.link,
-      });
-      this.form = res.banner;
-      this.dialogImageUrl = res.banner.link;
-      console.log(this.dialogImageUrl);
+      this.form = res.poetry;
+    //   this.dialogImageUrl = res.banner.link;
+    //   console.log(this.dialogImageUrl);
     },
   },
 };

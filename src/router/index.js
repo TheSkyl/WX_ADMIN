@@ -126,6 +126,54 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/cet',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '四六级词汇',
+        component: () => import('@/views/cet/list'),
+        meta: { title: '四六级词汇', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/poetryArticle',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '诗',
+        component: () => import('@/views/poetryArticle/list'),
+        meta: { title: '诗', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/learingBanner',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '学习轮播',
+        component: () => import('@/views/learingBanner/list'),
+        meta: { title: '学习轮播', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/shijing',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '诗经',
+        component: () => import('@/views/shijing/list'),
+        meta: { title: '诗经', icon: 'example' }
+      }
+    ]
+  },
+  {
     path: '/novel',
     component: Layout,
     children: [
