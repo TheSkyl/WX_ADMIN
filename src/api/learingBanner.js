@@ -33,5 +33,12 @@ export default {
             method: 'post',
             data: banner,
         })
+    },
+    changeStatus(id, status) {
+        return request({
+            url: `/web/learingbanner/change/${id}/status`,
+            method: 'GET',
+            params: { status: status }
+        })
     }
 }

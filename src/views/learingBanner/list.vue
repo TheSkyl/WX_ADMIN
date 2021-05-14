@@ -4,6 +4,17 @@
     <el-table :data="bannerList" border style="width: 100%">
       <el-table-column prop="name" label="名字" width="120" />
       <el-table-column prop="type" label="类型" width="120" />
+      <el-table-column prop="sequence" label="顺序" width="120" />
+      <el-table-column label="状态" width="100px">
+        <template slot-scope="scope">
+          <el-switch
+            @change="changeBannerStatus(scope.row)"
+            v-model="scope.row.ban"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
@@ -53,6 +64,9 @@
         <el-form-item label="类型">
           <el-input v-model="form.type"></el-input>
         </el-form-item>
+        <el-form-item label="顺序">
+          <el-input v-model="form.sequence"></el-input>
+        </el-form-item>
         <el-form-item label="图片" prop="imgLink">
           <el-upload
             action="http://localhost:53021/web/banner/upload"
@@ -73,7 +87,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false" >取 消</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="save">确 定</el-button>
       </span>
     </el-dialog>
@@ -188,12 +202,12 @@ export default {
         const res = await banner.update(this.form);
         this.$message.success("編輯成功");
         this.dialogVisible = false;
-        this.clearData()
+        this.clearData();
         this.getList();
       } else {
         const res = await banner.add(this.form);
         this.$message.success("添加成功");
-        this.clearData()
+        this.clearData();
       }
     },
     async getEditInfo(id) {
@@ -206,6 +220,13 @@ export default {
       this.form = res.banner;
       this.dialogImageUrl = res.banner.link;
       console.log(this.dialogImageUrl);
+    },
+    async changeBannerStatus(list) {
+      const res = await banner.changeStatus(list.id, list.ban);
+      if (res.code !== 20000) {
+        banner.status = !banner.status;
+      }
+      this.$message.success("修改状态成功！");
     },
   },
 };
