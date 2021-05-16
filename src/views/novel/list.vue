@@ -1,30 +1,11 @@
 <template>
   <dir id="app">
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
-    <el-table
-      :data="novelList"
-      border
-      style="width: 100%"
-      default-expand-all
-      row-key="id"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    >
+    <el-table :data="novelList" border style="width: 100%">
       <el-table-column prop="title" label="书名" width="120" />
       <el-table-column prop="author" label="作者" width="120" />
       <el-table-column prop="sequence" label="顺序" width="300" />
       <el-table-column prop="briefIntroduction" label="简介" width="300" />
-      <el-table-column label="章节">
-        <template slot-scope="scope">
-          <el-tag
-            size="mini"
-            v-if="scope.row.children || scope.row.children === null"
-            ></el-tag
-          >
-          <el-tag size="mini" type="warning" prop="chapter" v-else
-            >{{ scope.row.chapter }}</el-tag
-          >
-        </template>
-      </el-table-column>
       <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
@@ -40,36 +21,28 @@
 
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button
-            type="text"
-            size="small"
-            @click="
-              scope.row.children || scope.row.children === null
-                ? deleteNovel(scope.row.id)
-                : deleteAritcle(scope.row.id)
-            "
+          <el-button type="text" size="small" @click="deleteNovel(scope.row.id)"
             >删除</el-button
           >
-          <el-button
-            type="text"
-            size="small"
-            @click="
-              scope.row.children || scope.row.children === null
-                ? getEditInfo(scope.row.id)
-                : getArticlInfo(scope.row.id)
-            "
+          <el-button type="text" size="small" @click="getEditInfo(scope.row.id)"
             >编辑</el-button
           >
-          <el-button
-            type="text"
-            size="small"
-            @click="addArticle(scope.row.id)"
-            v-if="scope.row.children || scope.row.children === null"
+          <el-button type="text" size="small" @click="addArticle(scope.row.id)"
             >添加章节</el-button
           >
         </template>
       </el-table-column>
     </el-table>
+    <el-row type="flex" justify="center" style="margin-top: 10px">
+      <el-pagination
+        layout="prev, pager, next"
+        :page-size="pageSize"
+        :current-page="pageNum"
+        @current-change="handleCurrentChange"
+        :total="total"
+      >
+      </el-pagination>
+    </el-row>
 
     <el-dialog
       id="test"
@@ -159,13 +132,15 @@ export default {
     return {
       novelList: [],
       articleForm: {
-        novelId:"",
-        title:"",
-        article:"",
-        chapter:"",
-        type:0
+        novelId: "",
+        title: "",
+        article: "",
+        chapter: "",
+        type: 0,
       },
-      content: "welcome to tinymce!",
+      pageNum: 1,
+      pageSize: 5,
+      total: 0,
       editorOption: {},
       dialogVisible: false,
       articleDialogVisible: false,
@@ -180,15 +155,6 @@ export default {
     this.getAll();
   },
   methods: {
-    onEditorBlur() {
-      //失去焦点事件
-    },
-    onEditorFocus() {
-      //获得焦点事件
-    },
-    onEditorChange() {
-      //内容改变事件
-    },
     async deleteNovel(id) {
       const confirmResult = await this.$confirm(
         "此操作将永久删除该数据, 是否继续?",
@@ -208,12 +174,13 @@ export default {
       this.getList();
     },
     articleAddDialogClosed() {
-      this.articleForm = "";
+      this.articleForm.novelId = "";
     },
     addDialogClosed() {
       this.clearData();
     },
     clearData() {
+      this.articleForm.novelId = "";
       this.dialogVisible = false;
       this.form = "";
       this.dialogImageUrl = "";
@@ -247,26 +214,30 @@ export default {
       console.log(file, fileList);
     },
     handleCurrentChange(page) {
+      this.pageNum = page;
       this.getAll();
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
-      console.log(file);
       this.upDialogVisible = true;
     },
     async getArticlInfo(id) {
       this.articleDialogVisible = true;
       const { data: res } = await novelApi.getArticle(id);
       this.articleForm = res.article;
-      console.log(res);
     },
     async getAll() {
-      const { data: res } = await novelApi.getAll();
-      console.log(res.novel);
-      this.novelList = res.novel;
-      console.log(this.novelList);
+      const { data: res } = await novelApi.getAll(
+        this.pageNum,
+        this.pageSize,
+        this.keyword
+      );
+      this.novelList = res.novel.records;
+      this.total = res.novel.total;
+      this.pageNum = res.novel.current;
+      this.pageSize = res.novel.size;
     },
-    async addArticle(id){
+    async addArticle(id) {
       this.articleForm.novelId = id;
       this.articleDialogVisible = true;
     },
@@ -275,17 +246,16 @@ export default {
       if (this.form.id) {
         await novelApi.updateArticle(this.articleForm);
         this.$message.success("編輯成功");
-      }else{
+      } else {
         await novelApi.addArticle(this.articleForm);
         this.$message.success("添加成功");
       }
     },
-    async deleteAritcle(id){
+    async deleteAritcle(id) {
       await novelApi.delArticleById(id);
     },
     async save() {
       if (this.form.id) {
-        console.log(this.form);
         const res = await novelApi.update(this.form);
         this.$message.success("編輯成功");
         this.dialogVisible = false;
@@ -300,13 +270,11 @@ export default {
     async getEditInfo(id) {
       this.dialogVisible = true;
       const { data: res } = await novelApi.getById(id);
-      console.log("cdd" + res);
       this.novelDefaultFile.push({
         url: "http://localhost:53021/web" + res.novel.imgLink,
       });
       this.form = res.novel;
       this.dialogImageUrl = res.novel.imgLink;
-      console.log(this.dialogImageUrl);
     },
   },
 };

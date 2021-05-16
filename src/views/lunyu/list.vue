@@ -7,15 +7,14 @@
     ></el-input
     ><el-button type="primary" icon="el-icon-search" @click="getAll">搜索</el-button>
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
-    <el-table :data="poetryList" border style="width: 100%">
-      <el-table-column prop="title" label="名字" width="120" />
-      <el-table-column prop="author" label="诗人" width="120" />
+    <el-table :data="lunyuList" border style="width: 100%">
+      <el-table-column prop="chapter" label="章节" width="120" />
       <el-table-column label="操作" >
         <template slot-scope="scope">
           <el-button
             type="text"
             size="small"
-            @click="deletePoetry(scope.row.id)"
+            @click="deleteLunyu(scope.row.id)"
             >删除</el-button
           >
           <el-button type="text" size="small" @click="getEditInfo(scope.row.id)"
@@ -43,11 +42,8 @@
       @close="addDialogClosed"
     >
       <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="名称">
-          <el-input v-model="form.title"></el-input>
-        </el-form-item>
-        <el-form-item label="诗人">
-          <el-input v-model="form.author"></el-input>
+        <el-form-item label="章节">
+          <el-input v-model="form.chapter"></el-input>
         </el-form-item>
         <el-form-item label="内容">
           <el-input v-model="form.content"></el-input>
@@ -62,16 +58,17 @@
 </template>
 
 <script>
-import poetry from "@/api/poetryArticle";
+import lunyu from "@/api/lunyu";
 
 export default {
   data() {
     return {
-      poetryList: null,
+      lunyuList: null,
       pageNum: 1,
       pageSize: 5,
       total: 0,
       dialogVisible: false,
+      upDialogVisible: false,
       keyword: "",
       form: {
         title:'',
@@ -85,7 +82,7 @@ export default {
     this.getAll();
   },
   methods: {
-    async deletePoetry(id) {
+    async deleteLunyu(id) {
       const confirmResult = await this.$confirm(
         "此操作将永久删除该数据, 是否继续?",
         "提示",
@@ -99,7 +96,7 @@ export default {
       if (confirmResult !== "confirm") {
         return this.$message.info("已取消删除");
       }
-      const res = await poetry.delById(id);
+      const res = await lunyu.delById(id);
       this.$message.success("删除信息成功");
       this.getAll();
     },
@@ -116,28 +113,27 @@ export default {
       this.pageNum = page;
       this.getAll();
     },
+   
     async getAll() {
-      const { data: res } = await poetry.getAll(
+      const { data: res } = await lunyu.getAll(
         this.pageNum,
         this.pageSize,
         this.keyword
       );
-      console.log(this.pageNum);
-      this.poetryList = res.poetry.records;
-      this.total = res.poetry.total;
-      this.pageNum = res.poetry.current;
-      this.pageSize = res.poetry.size;
+      this.lunyuList = res.lunyu.records;
+      this.total = res.lunyu.total;
+      this.pageNum = res.lunyu.current;
+      this.pageSize = res.lunyu.size;
     },
     async save() {
       if (this.form.id) {
-        console.log(this.form);
-        const res = await poetry.update(this.form);
+        const res = await lunyu.update(this.form);
         this.$message.success("編輯成功");
         this.dialogVisible = false;
         this.getAll();
         this.clearData();
       } else {
-        const res = await poetry.add(this.form);
+        const res = await lunyu.add(this.form);
         this.$message.success("添加成功");
         this.getAll();
         this.clearData();
@@ -145,8 +141,9 @@ export default {
     },
     async getEditInfo(id) {
       this.dialogVisible = true;
-      const { data: res } = await poetry.getById(id);
-      this.form = res.poetry;
+      const { data: res } = await lunyu.getById(id);
+      console.log(res);
+      this.form = res.lunyu;
     },
   },
 };

@@ -3,35 +3,35 @@ import request from '@/utils/request'
 export default {
     getAll(pageNum, pageSize, keyword) {
         return request({
-            url: '/web/poetryAuthorBanner/page',
+            url: '/web/poems/page',
             method: 'get',
             params: { pageNum, pageSize, keyword }
         })
     },
     getById(id) {
         return request({
-            url: `/web/poetryAuthorBanner/getById/${id}`,
+            url: `/web/poems/getById/${id}`,
             method: 'get',
         })
     },
     delById(id) {
         return request({
-            url: `/web/poetryAuthorBanner/delById/${id}`,
+            url: `/web/poems/delById/${id}`,
             method: 'DELETE',
         })
     },
-    update(poetry) {
+    update(banner) {
         return request({
-            url: `/web/poetryAuthorBanner/update`,
+            url: `/web/poems/update`,
             method: 'put',
-            data: poetry
+            data: banner
         })
     },
-    add(poetry) {
+    add(banner) {
         return request({
-            url: '/web/poetryAuthorBanner/add',
+            url: '/web/poems/add',
             method: 'post',
-            data: poetry,
+            data: banner,
         })
     }
 }

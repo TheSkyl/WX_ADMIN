@@ -1,28 +1,16 @@
 <template>
   <dir id="app">
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
-    <el-table :data="bannerList" border style="width: 100%">
+    <el-table :data="shijingList" border style="width: 100%">
       <el-table-column prop="title" label="名字" width="100%" />
       <el-table-column prop="chapter" label="章节" width="100%" />
       <el-table-column prop="section" label="节" width="100%" />
-      
-      <!-- <el-table-column prop="sequence" label="顺序" width="300" /> -->
-      <!-- <el-table-column label="图片" width="200px">
-        <template slot-scope="scope">
-          <el-image
-            :preview-src-list="[scope.row]"
-            style="height: 100px"
-            fit="fill"
-            :src="'http://localhost:53021/web' + scope.row.link"
-          ></el-image>
-        </template>
-      </el-table-column> -->
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             type="text"
             size="small"
-            @click="deleteBanner(scope.row.id)"
+            @click="deleteShijing(scope.row.id)"
             >删除</el-button
           >
           <el-button type="text" size="small" @click="getEditInfo(scope.row.id)"
@@ -62,27 +50,6 @@
         <el-form-item label="内容">
           <el-input v-model="form.content"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="顺序">
-          <el-input v-model="form.sequence"></el-input>
-        </el-form-item> -->
-        <!-- <el-form-item label="图片" prop="link">
-          <el-upload
-            action="http://localhost:53021/web/banner/upload"
-            list-type="picture-card"
-            accept="image/jpeg,image/gif,image/png,image/bmp"
-            :limit="1"
-            :file-list="bannerDefaultFile"
-            :before-remove="beforeRemove"
-            :on-success="handleUploadSuccess"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-          >
-            <i class="el-icon-plus"></i>
-          </el-upload>
-          <el-dialog :visible.sync="upDialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="" />
-          </el-dialog>
-        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false" >取 消</el-button>
@@ -93,19 +60,16 @@
 </template>
 
 <script>
-import banner from "@/api/shijing";
+import shijing from "@/api/shijing";
 
 export default {
   data() {
     return {
-      bannerList: null,
+      shijingList: null,
       pageNum: 1,
       pageSize: 5,
       total: 0,
       dialogVisible: false,
-      dialogImageUrl: "",
-      upDialogVisible: false,
-      bannerDefaultFile: [],
       queryInfo: {
         keyword: "",
       },
@@ -122,7 +86,7 @@ export default {
     this.getAll();
   },
   methods: {
-    async deleteBanner(id) {
+    async deleteShijing(id) {
       const confirmResult = await this.$confirm(
         "此操作将永久删除该数据, 是否继续?",
         "提示",
@@ -136,7 +100,7 @@ export default {
       if (confirmResult !== "confirm") {
         return this.$message.info("已取消删除");
       }
-      const res = await banner.delById(id);
+      const res = await shijing.delById(id);
       this.$message.success("删除信息成功");
       this.getList();
     },
@@ -149,69 +113,33 @@ export default {
       this.form.chapter='';
       this.form.content='';
       this.form.section='';
-      this.dialogImageUrl = "";
-      this.bannerDefaultFile = [];
-    },
-    //上传图片成功回调函数
-    handleUploadSuccess(response, file, fileList) {
-      console.log(response);
-      this.form.link = response;
-      this.$message.success("上传成功");
-    },
-    beforeRemove(file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isJPG) {
-        this.$message.error("上传头像图片只能是 JPG 格式!");
-      }
-      if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
-      }
-      return isJPG && isLt2M;
-    },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
     },
     handleCurrentChange(page) {
       this.pageNum = page;
       this.getAll();
     },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      console.log(file);
-      this.upDialogVisible = true;
-    },
     async getAll() {
-      const { data: res } = await banner.getAll(
+      const { data: res } = await shijing.getAll(
         this.pageNum,
         this.pageSize,
         this.queryInfo.keyword
       );
       console.log(this.pageNum);
-      this.bannerList = res.poetry.records;
-      this.total = res.poetry.total;
-      this.pageNum = res.poetry.current;
-      this.pageSize = res.poetry.size;
-      console.log(this.bannerList);
-      // this.
+      this.shijingList = res.shijing.records;
+      this.total = res.shijing.total;
+      this.pageNum = res.shijing.current;
+      this.pageSize = res.shijing.size;
     },
     async save() {
       if (this.form.id) {
         console.log(this.form);
-        const res = await banner.update(this.form);
+        const res = await shijing.update(this.form);
         this.$message.success("編輯成功");
         this.dialogVisible = false;
         this.clearData()
         this.getAll();
       } else {
-        const res = await banner.add(this.form);
+        const res = await shijing.add(this.form);
         this.$message.success("添加成功");
         this.getAll();
         this.clearData()
@@ -219,11 +147,8 @@ export default {
     },
     async getEditInfo(id) {
       this.dialogVisible = true;
-      const { data: res } = await banner.getById(id);
-      console.log(res);
+      const { data: res } = await shijing.getById(id);
       this.form = res.poetry;
-    //   this.dialogImageUrl = res.banner.link;
-    //   console.log(this.dialogImageUrl);
     },
   },
 };

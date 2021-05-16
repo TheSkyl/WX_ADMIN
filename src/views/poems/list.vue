@@ -7,7 +7,7 @@
     ></el-input
     ><el-button type="primary" icon="el-icon-search" @click="getAll">搜索</el-button>
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
-    <el-table :data="poetryList" border style="width: 100%">
+    <el-table :data="poemsList" border style="width: 100%">
       <el-table-column prop="title" label="名字" width="120" />
       <el-table-column prop="author" label="诗人" width="120" />
       <el-table-column label="操作" >
@@ -15,7 +15,7 @@
           <el-button
             type="text"
             size="small"
-            @click="deletePoetry(scope.row.id)"
+            @click="deletePoems(scope.row.id)"
             >删除</el-button
           >
           <el-button type="text" size="small" @click="getEditInfo(scope.row.id)"
@@ -62,12 +62,12 @@
 </template>
 
 <script>
-import poetry from "@/api/poetryArticle";
+import poems from "@/api/poems";
 
 export default {
   data() {
     return {
-      poetryList: null,
+      poemsList: null,
       pageNum: 1,
       pageSize: 5,
       total: 0,
@@ -85,7 +85,7 @@ export default {
     this.getAll();
   },
   methods: {
-    async deletePoetry(id) {
+    async deletePoems(id) {
       const confirmResult = await this.$confirm(
         "此操作将永久删除该数据, 是否继续?",
         "提示",
@@ -99,7 +99,7 @@ export default {
       if (confirmResult !== "confirm") {
         return this.$message.info("已取消删除");
       }
-      const res = await poetry.delById(id);
+      const res = await poems.delById(id);
       this.$message.success("删除信息成功");
       this.getAll();
     },
@@ -117,27 +117,27 @@ export default {
       this.getAll();
     },
     async getAll() {
-      const { data: res } = await poetry.getAll(
+      const { data: res } = await poems.getAll(
         this.pageNum,
         this.pageSize,
         this.keyword
       );
       console.log(this.pageNum);
-      this.poetryList = res.poetry.records;
-      this.total = res.poetry.total;
-      this.pageNum = res.poetry.current;
-      this.pageSize = res.poetry.size;
+      this.poemsList = res.poems.records;
+      this.total = res.poems.total;
+      this.pageNum = res.poems.current;
+      this.pageSize = res.poems.size;
     },
     async save() {
       if (this.form.id) {
         console.log(this.form);
-        const res = await poetry.update(this.form);
+        const res = await poems.update(this.form);
         this.$message.success("編輯成功");
         this.dialogVisible = false;
         this.getAll();
         this.clearData();
       } else {
-        const res = await poetry.add(this.form);
+        const res = await poems.add(this.form);
         this.$message.success("添加成功");
         this.getAll();
         this.clearData();
@@ -145,8 +145,8 @@ export default {
     },
     async getEditInfo(id) {
       this.dialogVisible = true;
-      const { data: res } = await poetry.getById(id);
-      this.form = res.poetry;
+      const { data: res } = await poems.getById(id);
+      this.form = res.poems;
     },
   },
 };

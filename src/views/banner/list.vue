@@ -4,9 +4,6 @@
     <el-table :data="bannerList" border style="width: 100%">
       <el-table-column fixed prop="createTime" label="日期" width="150" />
       <el-table-column prop="name" label="名字" width="120" />
-      <el-table-column prop="status" label="状态" width="120" />
-      <el-table-column prop="link" label="图片地址" width="120" />
-      <el-table-column prop="sequence" label="顺序" width="300" />
       <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
@@ -17,7 +14,7 @@
           ></el-image>
         </template>
       </el-table-column>
-      <el-table-column label="操作" >
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             type="text"
@@ -53,9 +50,6 @@
         <el-form-item label="名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="顺序">
-          <el-input v-model="form.sequence"></el-input>
-        </el-form-item>
         <el-form-item label="图片" prop="link">
           <el-upload
             action="http://localhost:53021/web/banner/upload"
@@ -67,6 +61,7 @@
             :on-success="handleUploadSuccess"
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
+            :before-upload="beforeAvatarUpload"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -76,7 +71,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false" >取 消</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="save">确 定</el-button>
       </span>
     </el-dialog>
@@ -97,9 +92,6 @@ export default {
       dialogImageUrl: "",
       upDialogVisible: false,
       bannerDefaultFile: [],
-      queryInfo: {
-        keyword: "",
-      },
       form: {},
     };
   },
@@ -129,24 +121,26 @@ export default {
     addDialogClosed() {
       this.clearData();
     },
+    //清楚数据
     clearData() {
       this.dialogVisible = false;
-      this.form = "";
+      this.form = {};
       this.dialogImageUrl = "";
       this.bannerDefaultFile = [];
     },
     //上传图片成功回调函数
     handleUploadSuccess(response, file, fileList) {
-      console.log(response);
       this.form.link = response;
       this.$message.success("上传成功");
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
     },
+    //文件上传成功
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
     },
+    //上去前检测图片格式
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -159,6 +153,7 @@ export default {
       }
       return isJPG && isLt2M;
     },
+    //文件列表移除文件
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
@@ -171,44 +166,45 @@ export default {
       console.log(file);
       this.upDialogVisible = true;
     },
+    //获取所有轮播图，分页获取
     async getAll() {
       const { data: res } = await banner.getAll(
         this.pageNum,
         this.pageSize,
-        this.queryInfo.keyword
       );
-      console.log(this.pageNum);
-      this.bannerList = res.page.records;
-      this.total = res.page.total;
-      this.pageNum = res.page.current;
-      this.pageSize = res.page.size;
-      console.log(this.bannerList);
-      // this.
+      this.bannerList = res.page.records; //数据
+      this.total = res.page.total;  //总页数
+      this.pageNum = res.page.current;  //页码
+      this.pageSize = res.page.size; //每页 显示多少数据
     },
+    //添加和编辑
     async save() {
       if (this.form.id) {
         console.log(this.form);
         const res = await banner.update(this.form);
-        this.$message.success("編輯成功");
+        this.$message.success("编辑成功");
         this.dialogVisible = false;
-        this.clearData()
-        this.getList();
+        this.clearData();
+        this.getAll();
       } else {
         const res = await banner.add(this.form);
         this.$message.success("添加成功");
-        this.clearData()
+        this.clearData();
+        this.getAll();
       }
     },
+    //点击编辑按钮获取数据
     async getEditInfo(id) {
+      //弹出窗口
       this.dialogVisible = true;
+      //根据id请求数据
       const { data: res } = await banner.getById(id);
-      console.log(res);
+      //图片地址
       this.bannerDefaultFile.push({
         url: "http://localhost:53021/web" + res.banner.link,
       });
       this.form = res.banner;
       this.dialogImageUrl = res.banner.link;
-      console.log(this.dialogImageUrl);
     },
   },
 };

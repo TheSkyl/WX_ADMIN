@@ -1,29 +1,14 @@
 <template>
   <dir id="app">
     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
-    <el-table :data="novelList" border style="width: 100%">
-      ///** */:tree-props="{ children: 'children', hasChildren: 'hasChildren'*/
-      <!-- <el-table-column prop="title" label="诗名" width="120" /> -->
-
+    <el-table :data="poetryAuthorList" border style="width: 100%">
       <el-table-column prop="name" label="诗人" width="120" />
       <el-table-column prop="intro" label="简介" width="300" />
-      <!-- <el-table-column label="章节">
-        <template slot-scope="scope">
-          <el-tag
-            size="mini"
-            v-if="scope.row.children || scope.row.children === null"
-            ></el-tag
-          >
-          <el-tag size="mini" type="warning" prop="chapter" v-else>{{
-            scope.row.chapter
-          }}</el-tag>
-        </template>
-      </el-table-column> -->
       <el-table-column label="图片" width="200px">
         <template slot-scope="scope">
           <el-image
             :preview-src-list="[scope.row]"
-            style="height: 90px;width:60px"
+            style="height: 90px; width: 60px"
             fit="fill"
             v-if="scope.row.children || scope.row.children === null"
             :src="'http://localhost:53021/web' + scope.row.imgLink"
@@ -32,7 +17,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="deleteNovel(scope.row.id)"
+          <el-button type="text" size="small" @click="deletePoetryAuthor(scope.row.id)"
             >删除</el-button
           >
           <el-button type="text" size="small" @click="getEditInfo(scope.row.id)"
@@ -41,6 +26,16 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-row type="flex" justify="center" style="margin-top: 10px">
+      <el-pagination
+        layout="prev, pager, next"
+        :page-size="pageSize"
+        :current-page="pageNum"
+        @current-change="handleCurrentChange"
+        :total="total"
+      >
+      </el-pagination>
+    </el-row>
 
     <el-dialog
       id="test"
@@ -62,7 +57,7 @@
             list-type="picture-card"
             accept="image/jpeg,image/gif,image/png,image/bmp"
             :limit="1"
-            :file-list="novelDefaultFile"
+            :file-list="poetryAuthorDefaultFile"
             :before-remove="beforeRemove"
             :on-success="handleUploadSuccess"
             :on-preview="handlePictureCardPreview"
@@ -90,24 +85,18 @@ import { quillEditor } from "vue-quill-editor";
 export default {
   data() {
     return {
-      novelList: [],
-      articleForm: {
-        novelId: "",
-        title: "",
-        article: "",
-        chapter: "",
-        type: 2,
-      },
-      content: "welcome to tinymce!",
-      editorOption: {},
+      poetryAuthorList: [],
+      pageNum: 1,
+      pageSize: 5,
+      total: 0,
       dialogVisible: false,
       articleDialogVisible: false,
       dialogImageUrl: "",
       upDialogVisible: false,
-      novelDefaultFile: [],
+      poetryAuthorDefaultFile: [],
       form: {
-        name:'',
-        intro:''
+        name: "",
+        intro: "",
       },
     };
   },
@@ -116,16 +105,7 @@ export default {
     this.getAll();
   },
   methods: {
-    onEditorBlur() {
-      //失去焦点事件
-    },
-    onEditorFocus() {
-      //获得焦点事件
-    },
-    onEditorChange() {
-      //内容改变事件
-    },
-    async deleteNovel(id) {
+    async deletePoetryAuthor(id) {
       const confirmResult = await this.$confirm(
         "此操作将永久删除该数据, 是否继续?",
         "提示",
@@ -143,22 +123,18 @@ export default {
       this.$message.success("删除信息成功");
       this.getList();
     },
-    articleAddDialogClosed() {
-      this.articleForm = "";
-    },
     addDialogClosed() {
       this.clearData();
     },
     clearData() {
       this.dialogVisible = false;
-      this.form.name='';
-      this.form.intro='';
+      this.form.name = "";
+      this.form.intro = "";
       this.dialogImageUrl = "";
-      this.novelDefaultFile = [];
+      this.poetryAuthorDefaultFile = [];
     },
     //上传图片成功回调函数
     handleUploadSuccess(response, file, fileList) {
-      console.log(response);
       this.form.imgLink = response;
       this.$message.success("上传成功");
     },
@@ -184,45 +160,26 @@ export default {
       console.log(file, fileList);
     },
     handleCurrentChange(page) {
+      this.pageNum = page;
       this.getAll();
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
-      console.log(file);
       this.upDialogVisible = true;
     },
-    async getArticlInfo(id) {
-      this.articleDialogVisible = true;
-      const { data: res } = await poetryApi.getArticle(id);
-      this.articleForm = res.article;
-      console.log(res);
-    },
     async getAll() {
-      const { data: res } = await poetryApi.getAll();
-      console.log(res.poetry);
-      this.novelList = res.poetry;
-      console.log(this.novelList);
-    },
-    async addArticle(id) {
-      this.articleForm.novelId = id;
-      this.articleDialogVisible = true;
-    },
-
-    async articleSave() {
-      if (this.articleForm.id) {
-        await poetryApi.updateArticle(this.articleForm);
-        this.$message.success("編輯成功");
-      } else {
-        await poetryApi.addArticle(this.articleForm);
-        this.$message.success("添加成功");
-      }
-    },
-    async deleteAritcle(id) {
-      await poetryApi.delArticleById(id);
+      const { data: res } = await poetryApi.getAll(
+        this.pageNum,
+        this.pageSize,
+        this.keyword
+      );
+      this.poetryAuthorList = res.poetryAuthor.records;
+      this.total = res.poetryAuthor.total;
+      this.pageNum = res.poetryAuthor.current;
+      this.pageSize = res.poetryAuthor.size;
     },
     async save() {
       if (this.form.id) {
-        console.log(this.form);
         const res = await poetryApi.update(this.form);
         this.$message.success("編輯成功");
         this.dialogVisible = false;
@@ -238,12 +195,11 @@ export default {
       this.dialogVisible = true;
       const { data: res } = await poetryApi.getById(id);
       console.log("cdd" + res);
-      this.novelDefaultFile.push({
-        url: "http://localhost:53021/web" + res.poetry.imgLink,
+      this.poetryAuthorDefaultFile.push({
+        url: "http://localhost:53021/web" + res.poetryAuthor.imgLink,
       });
-      this.form = res.poetry;
-      this.dialogImageUrl = res.poetry.imgLink;
-      console.log(this.dialogImageUrl);
+      this.form = res.poetryAuthor;
+      this.dialogImageUrl = res.poetryAuthor.imgLink;
     },
   },
 };

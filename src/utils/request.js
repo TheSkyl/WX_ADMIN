@@ -69,7 +69,8 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject(new Error(res.message || 'Error'))
+      // alert(res);
+      return Promise.reject(new Error(res.message || '错误'))
     } else {
       return res
     }

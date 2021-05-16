@@ -102,50 +102,14 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/famousWorks',
-    component: Layout,
-    children: [
-      {
-        path: 'list',
-        name: '名著',
-        component: () => import('@/views/famousWorks/list'),
-        meta: { title: '名著', icon: 'example' }
-      }
-    ]
-  },
-  {
     path: '/poetry',
     component: Layout,
     children: [
       {
         path: 'list',
-        name: '诗词',
+        name: '诗人轮播控制',
         component: () => import('@/views/poetry/list'),
-        meta: { title: '诗词', icon: 'example' }
-      }
-    ]
-  },
-  {
-    path: '/cet',
-    component: Layout,
-    children: [
-      {
-        path: 'list',
-        name: '四六级词汇',
-        component: () => import('@/views/cet/list'),
-        meta: { title: '四六级词汇', icon: 'example' }
-      }
-    ]
-  },
-  {
-    path: '/poetryArticle',
-    component: Layout,
-    children: [
-      {
-        path: 'list',
-        name: '诗',
-        component: () => import('@/views/poetryArticle/list'),
-        meta: { title: '诗', icon: 'example' }
+        meta: { title: '诗人轮播控制', icon: 'example' }
       }
     ]
   },
@@ -162,87 +126,100 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/shijing',
+    path: '/cet',
     component: Layout,
     children: [
       {
         path: 'list',
-        name: '诗经',
-        component: () => import('@/views/shijing/list'),
-        meta: { title: '诗经', icon: 'example' }
-      }
-    ]
-  },
-  {
-    path: '/novel',
-    component: Layout,
-    children: [
-      {
-        path: 'list',
-        name: '小说管理',
-        component: () => import('@/views/novel/list'),
-        meta: { title: '小说管理', icon: 'example' }
+        name: '词汇',
+        component: () => import('@/views/cet/list'),
+        meta: { title: '英语词汇', icon: 'example' }
       }
     ]
   },
   // {
-  //   path: '/nested',
+  //   path: '/poetryArticle',
   //   component: Layout,
-  //   redirect: '/nested/menu1',
-  //   name: 'Nested',
-  //   meta: {
-  //     title: 'Nested',
-  //     icon: 'nested'
-  //   },
   //   children: [
   //     {
-  //       path: 'menu1',
-  //       component: () => import('@/views/nested/menu1/index'), // Parent router-view
-  //       name: 'Menu1',
-  //       meta: { title: 'Menu1' },
-  //       children: [
-  //         {
-  //           path: 'menu1-1',
-  //           component: () => import('@/views/nested/menu1/menu1-1'),
-  //           name: 'Menu1-1',
-  //           meta: { title: 'Menu1-1' }
-  //         },
-  //         {
-  //           path: 'menu1-2',
-  //           component: () => import('@/views/nested/menu1/menu1-2'),
-  //           name: 'Menu1-2',
-  //           meta: { title: 'Menu1-2' },
-  //           children: [
-  //             {
-  //               path: 'menu1-2-1',
-  //               component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-  //               name: 'Menu1-2-1',
-  //               meta: { title: 'Menu1-2-1' }
-  //             },
-  //             {
-  //               path: 'menu1-2-2',
-  //               component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-  //               name: 'Menu1-2-2',
-  //               meta: { title: 'Menu1-2-2' }
-  //             }
-  //           ]
-  //         },
-  //         {
-  //           path: 'menu1-3',
-  //           component: () => import('@/views/nested/menu1/menu1-3'),
-  //           name: 'Menu1-3',
-  //           meta: { title: 'Menu1-3' }
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       path: 'menu2',
-  //       component: () => import('@/views/nested/menu2/index'),
-  //       name: 'Menu2',
-  //       meta: { title: 'menu2' }
+  //       path: 'list',
+  //       name: '诗',
+  //       component: () => import('@/views/poetryArticle/list'),
+  //       meta: { title: '诗', icon: 'example' }
   //     }
   //   ]
   // },
+  // {
+  //   path: '/shijing',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'list',
+  //       name: '诗经',
+  //       component: () => import('@/views/shijing/list'),
+  //       meta: { title: '诗经', icon: 'example' }
+  //     }
+  //   ]
+  // },
+  {
+    path: '/novel',
+    component: Layout,
+    name: '小说',
+    meta: {
+      title: '小说',
+      icon: 'nested'
+    },
+    children: [
+      {
+        path: '小说管理',
+        name: '小说管理',
+        component: () => import('@/views/novel/list'),
+        meta: { title: '小说管理', icon: 'example' }
+      },
+      {
+        path: '小说章节',
+        name: '小说章节',
+        component: () => import('@/views/article/list'),
+        meta: { title: '小说章节', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/nested',
+    component: Layout,
+    redirect: '/nested/menu1',
+    name: 'Nested',
+    meta: {
+      title: '诗词',
+      icon: 'nested'
+    },
+    children: [
+      {
+        path: '诗经',
+        component: () => import('@/views/shijing/list'), // Parent router-view
+        name: '诗经',
+        meta: { title: '诗经' },
+      },
+      {
+        path: '诗',
+        component: () => import('@/views/poetryArticle/list'),
+        name: '诗',
+        meta: { title: '诗' }
+      },
+      {
+        path: '词',
+        component: () => import('@/views/poems/list'), // Parent router-view
+        name: '词',
+        meta: { title: '词' },
+      },
+      {
+        path: '论语',
+        component: () => import('@/views/lunyu/list'), // Parent router-view
+        name: '论语',
+        meta: { title: '论语' },
+      },
+    ]
+  },
 
   // {
   //   path: 'external-link',
@@ -254,6 +231,18 @@ export const constantRoutes = [
   //     }
   //   ]
   // },
+  {
+    path: '/famousWorks',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: '名著',
+        component: () => import('@/views/famousWorks/list'),
+        meta: { title: '名著', icon: 'example' }
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

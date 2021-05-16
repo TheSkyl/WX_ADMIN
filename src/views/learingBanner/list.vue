@@ -119,6 +119,7 @@ export default {
     this.getAll();
   },
   methods: {
+    //删除
     async deleteBanner(id) {
       const confirmResult = await this.$confirm(
         "此操作将永久删除该数据, 是否继续?",
@@ -148,7 +149,6 @@ export default {
     },
     //上传图片成功回调函数
     handleUploadSuccess(response, file, fileList) {
-      console.log(response);
       this.form.imgLink = response;
       this.$message.success("上传成功");
     },
@@ -158,30 +158,19 @@ export default {
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
     },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isJPG) {
-        this.$message.error("上传头像图片只能是 JPG 格式!");
-      }
-      if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
-      }
-      return isJPG && isLt2M;
-    },
     handleRemove(file, fileList) {
       console.log(file, fileList);
+    },
+
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.upDialogVisible = true;
     },
     handleCurrentChange(page) {
       this.pageNum = page;
       this.getAll();
     },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      console.log(file);
-      this.upDialogVisible = true;
-    },
+    //请求所有
     async getAll() {
       const { data: res } = await banner.getAll(
         this.pageNum,
@@ -193,14 +182,12 @@ export default {
       this.total = res.page.total;
       this.pageNum = res.page.current;
       this.pageSize = res.page.size;
-      console.log(this.bannerList);
-      // this.
     },
+    //添加和编辑
     async save() {
       if (this.form.id) {
-        console.log(this.form);
         const res = await banner.update(this.form);
-        this.$message.success("編輯成功");
+        this.$message.success("编辑成功");
         this.dialogVisible = false;
         this.clearData();
         this.getList();
@@ -210,21 +197,21 @@ export default {
         this.clearData();
       }
     },
+    //请求数据
     async getEditInfo(id) {
       this.dialogVisible = true;
       const { data: res } = await banner.getById(id);
-      console.log(res);
       this.bannerDefaultFile.push({
         url: "http://localhost:53021/web" + res.banner.imgLink,
       });
       this.form = res.banner;
       this.dialogImageUrl = res.banner.link;
-      console.log(this.dialogImageUrl);
     },
+    //状态修改
     async changeBannerStatus(list) {
       const res = await banner.changeStatus(list.id, list.ban);
       if (res.code !== 20000) {
-        banner.status = !banner.status;
+        list.ban = !list.ban;
       }
       this.$message.success("修改状态成功！");
     },

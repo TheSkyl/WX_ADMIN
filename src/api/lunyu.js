@@ -3,35 +3,35 @@ import request from '@/utils/request'
 export default {
     getAll(pageNum, pageSize, keyword) {
         return request({
-            url: '/web/poetryAuthorBanner/page',
+            url: '/web/lunyu/page',
             method: 'get',
             params: { pageNum, pageSize, keyword }
         })
     },
     getById(id) {
         return request({
-            url: `/web/poetryAuthorBanner/getById/${id}`,
+            url: `/web/lunyu/getById/${id}`,
             method: 'get',
         })
     },
     delById(id) {
         return request({
-            url: `/web/poetryAuthorBanner/delById/${id}`,
+            url: `/web/lunyu/delById/${id}`,
             method: 'DELETE',
         })
     },
-    update(poetry) {
+    update(banner) {
         return request({
-            url: `/web/poetryAuthorBanner/update`,
+            url: `/web/lunyu/update`,
             method: 'put',
-            data: poetry
+            data: banner
         })
     },
-    add(poetry) {
+    add(banner) {
         return request({
-            url: '/web/poetryAuthorBanner/add',
+            url: '/web/lunyu/add',
             method: 'post',
-            data: poetry,
+            data: banner,
         })
     }
 }
